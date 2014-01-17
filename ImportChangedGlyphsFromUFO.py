@@ -98,7 +98,6 @@ def diffKerning(oldTable, newTable):
 		progress.tick()
 		if v == 0:
 			nulPairs[(l, r)] = v
-		# report = report+'\n'+ 'ZERO pair: ' +l+' '+r+' '+str(v)
 		else:
 			if not oldTable.has_key((l, r)):
 				newPairs[(l, r)] = v
