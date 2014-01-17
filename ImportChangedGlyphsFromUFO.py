@@ -1,6 +1,3 @@
-
-
-
 """
 	Compare and Update from UFO.
 	If the .vfb has a UFO in the same folder, and the names match
@@ -16,7 +13,6 @@
 	typedev 14
 
 """
-
 
 from robofab.interface.all.dialogs import AskYesNoCancel
 from robofab.interface.all.dialogs import Message
@@ -39,27 +35,31 @@ import os
 
 # report = ''
 
-def getLRid(kernClassesToBooleans,n_group):
-	l =''
-	r =''
+def getLRid(kernClassesToBooleans, n_group):
+	l = ''
+	r = ''
 	if kernClassesToBooleans.has_key(n_group):
-		L,R = kernClassesToBooleans[n_group]
-		if L: l ='*LEFT'
-		if R: r ='*RIGHT'		
+		L, R = kernClassesToBooleans[n_group]
+		if L: l = '*LEFT'
+		if R: r = '*RIGHT'
 	return l + r
 
-def compareContent(g1, g2):
-	a = ''.join( g1)
-	b = ''.join( g2)
-	if a!=b: return False
-	else: return True
 
-def	diffGroups(oldTable, newTable, kernClassesToBooleans):
+def compareContent(g1, g2):
+	a = ''.join(g1)
+	b = ''.join(g2)
+	if a != b:
+		return False
+	else:
+		return True
+
+
+def diffGroups(oldTable, newTable, kernClassesToBooleans):
 	newGroups = {}
 	delGroups = {}
 	chgGroups = {}
 
-	progress = ProgressBar('Making report: Classes', ticks =  len(newTable.items()) + len(oldTable.items()))
+	progress = ProgressBar('Making report: Classes', ticks=len(newTable.items()) + len(oldTable.items()))
 
 	report = '\n\n* * * * * Groups report:'
 
@@ -67,21 +67,24 @@ def	diffGroups(oldTable, newTable, kernClassesToBooleans):
 		progress.tick()
 		if not oldTable.has_key(n_group):
 			newGroups[n_group] = content
-			report = report+'\n\nNew Group Added: %s%s [%s]' % (n_group,getLRid(kernClassesToBooleans,n_group),' '.join(content))
+			report = report + '\n\nNew Group Added: %s%s [%s]' % (
+			n_group, getLRid(kernClassesToBooleans, n_group), ' '.join(content))
 		else:
 			if not compareContent(oldTable[n_group], newTable[n_group]):
 				chgGroups[n_group] = [oldTable[n_group], newTable[n_group]]
-				report = report+'\n\nChanged Group: %s%s' %  (n_group, getLRid(kernClassesToBooleans,n_group) )
-				report = report+'\n\told: [%s]' % (' '.join( oldTable[n_group] ))
-				report = report+'\n\tnew: [%s]' % (' '.join( newTable[n_group] ))
+				report = report + '\n\nChanged Group: %s%s' % (n_group, getLRid(kernClassesToBooleans, n_group) )
+				report = report + '\n\told: [%s]' % (' '.join(oldTable[n_group]))
+				report = report + '\n\tnew: [%s]' % (' '.join(newTable[n_group]))
 	for o_group, content in oldTable.items():
 		progress.tick()
 		if not newTable.has_key(o_group):
 			delGroups[o_group] = content
-			report = report+'\n\nGroup Deleted: %s [%s]' % (o_group, ' '.join( content ))
-	report = report+ '\n\nGroups TOTAL: Added=%i Deleted=%i Changed=%i' % (len(newGroups),len(delGroups),len(chgGroups))
+			report = report + '\n\nGroup Deleted: %s [%s]' % (o_group, ' '.join(content))
+	report = report + '\n\nGroups TOTAL: Added=%i Deleted=%i Changed=%i' % (
+	len(newGroups), len(delGroups), len(chgGroups))
 	progress.close()
 	return report#, newGroups, delGroups, chgGroups
+
 
 def diffKerning(oldTable, newTable):
 	newPairs = {}
@@ -89,38 +92,39 @@ def diffKerning(oldTable, newTable):
 	chgPairs = {}
 	nulPairs = {}
 	report = '\n\n* * * * * Kerning report:\n'
-	progress = ProgressBar('Making report: Kerning', ticks =  len(newTable.items()) + len(oldTable.items()))
+	progress = ProgressBar('Making report: Kerning', ticks=len(newTable.items()) + len(oldTable.items()))
 
-	for (l , r), v in newTable.items():
+	for (l, r), v in newTable.items():
 		progress.tick()
-		if v == 0: 
-			nulPairs[(l , r)] = v
-			# report = report+'\n'+ 'ZERO pair: ' +l+' '+r+' '+str(v)
+		if v == 0:
+			nulPairs[(l, r)] = v
+		# report = report+'\n'+ 'ZERO pair: ' +l+' '+r+' '+str(v)
 		else:
-			if not oldTable.has_key((l , r)):
-				newPairs[(l,r)] = v
-				report = report+'\nNew Pair: %s %s %i' % (l,r,v)
+			if not oldTable.has_key((l, r)):
+				newPairs[(l, r)] = v
+				report = report + '\nNew Pair: %s %s %i' % (l, r, v)
 			else:
-				if oldTable[(l,r)] != newTable[(l,r)]:
-					chgPairs[(l,r)] = [oldTable[(l,r)], newTable[(l,r)]]
-					report = report+'\nChanged Pair: %s %s' % (l,r)
-					report = report+'\n\told: %i\tnew: %i' % (oldTable[(l,r)],newTable[(l,r)])
-	for (l,r),v in oldTable.items():
+				if oldTable[(l, r)] != newTable[(l, r)]:
+					chgPairs[(l, r)] = [oldTable[(l, r)], newTable[(l, r)]]
+					report = report + '\nChanged Pair: %s %s' % (l, r)
+					report = report + '\n\told: %i\tnew: %i' % (oldTable[(l, r)], newTable[(l, r)])
+	for (l, r), v in oldTable.items():
 		progress.tick()
-		if not newTable.has_key((l,r)):
-			delPairs[(l,r)] = v
-			report = report+'\nPair Deleted: %s %s %i' % (l,r,v)
-	report = report+'\n\nPairs TOTAL: Added=%i Deleted=%i Changed=%i Null pairs (ignored)=%i' % (len(newPairs) ,len(delPairs),len(chgPairs),len(nulPairs))
+		if not newTable.has_key((l, r)):
+			delPairs[(l, r)] = v
+			report = report + '\nPair Deleted: %s %s %i' % (l, r, v)
+	report = report + '\n\nPairs TOTAL: Added=%i Deleted=%i Changed=%i Null pairs (ignored)=%i' % (
+	len(newPairs), len(delPairs), len(chgPairs), len(nulPairs))
 	progress.close()
 	return report#,newPairs, delPairs, chgPairs, nulPairs
 
 
-
 def generateClassName(kernClasses, classname):
-	for i in range(1,1000,1):
-		if not kernClasses.has_key(classname + str(i)): 
+	for i in range(1, 1000, 1):
+		if not kernClasses.has_key(classname + str(i)):
 			return classname + str(i)
 			break
+
 
 def importKerningMMK(font, UFOfilepath):
 	report = 'Import MMKerning Report ' + asctime() + '\nUFO file: ' + UFOfilepath
@@ -134,24 +138,23 @@ def importKerningMMK(font, UFOfilepath):
 
 	kernGroups = readPlist(UFOpath_groups)
 
-	progress = ProgressBar('Converting group names', ticks =  len(kernGroups.items()))
+	progress = ProgressBar('Converting group names', ticks=len(kernGroups.items()))
 
 	for groupname, content in kernGroups.items():
 		progress.tick()
-		if len (content) != 0:
+		if len(content) != 0:
 
-			if content[0]=='':
-
+			if content[0] == '':
 				content.pop(0)
 			if groupname.startswith('@'): #  @MMK_
 				classname = '_' + groupname[7:]
 
 				baseGlyph = content[0]
-				content[0] = baseGlyph +'\''
+				content[0] = baseGlyph + '\''
 				classcontent = content
 				dicGroups[groupname] = baseGlyph
 
-				if kernClasses.has_key(classname): 
+				if kernClasses.has_key(classname):
 					if kernClasses[classname] == classcontent:
 						kernClassesToBooleans[classname] = (True, True)
 
@@ -181,13 +184,13 @@ def importKerningMMK(font, UFOfilepath):
 			print 'WARNING! Group with NULL content:', groupname
 	progress.close()
 
-	progress = ProgressBar('Merging kerning and fea-classes', ticks =  len(kernClasses.items()) + len(feaClasses.items()))
+	progress = ProgressBar('Merging kerning and fea-classes', ticks=len(kernClasses.items()) + len(feaClasses.items()))
 
 	classes = {} #= font.groups
 	for classname, content in kernClasses.items():
 		progress.tick()
 		classes[classname] = content#.split(' ')
-		# font.naked().classes 
+	# font.naked().classes
 	for classname, content in feaClasses.items():
 		progress.tick()
 		classes[classname] = content#.split(' ')
@@ -196,11 +199,10 @@ def importKerningMMK(font, UFOfilepath):
 	report = report + diffGroups(font.groups, classes, kernClassesToBooleans)
 
 	font.groups.clear()
-	font.groups = classes	
+	font.groups = classes
 	font.update()
 
-	progress = ProgressBar('Left/Right identification', ticks =  len(font.naked().classes))
-
+	progress = ProgressBar('Left/Right identification', ticks=len(font.naked().classes))
 
 	for index, kernClass in enumerate(font.naked().classes):
 		progress.tick()
@@ -210,16 +212,16 @@ def importKerningMMK(font, UFOfilepath):
 			# print nameClass
 			leftBool, rightBool = kernClassesToBooleans[nameClass]
 			font.naked().SetClassFlags(index, leftBool, rightBool)
-	font.update()	
+	font.update()
 	print '\nConverting Groups from MetricsMachine to Fontlab Classes: DONE\n'
 	progress.close()
 
 	pl = readPlist(UFOpath_kerning)
-	for left , right in pl.items():
+	for left, right in pl.items():
 		for key_r, value in right.items():
 			kernTable[(left, key_r)] = value
 
-	progress = ProgressBar('Left pairs converting', ticks =  len(kernTable.items()))
+	progress = ProgressBar('Left pairs converting', ticks=len(kernTable.items()))
 
 	new_kern1 = {}
 	for (left, right), value in kernTable.items():
@@ -234,7 +236,7 @@ def importKerningMMK(font, UFOfilepath):
 				new_kern1[(left, right)] = value
 	progress.close()
 
-	progress = ProgressBar('Right pairs converting', ticks =  len(new_kern1.items()))
+	progress = ProgressBar('Right pairs converting', ticks=len(new_kern1.items()))
 
 	new_kern2 = {}
 	for (left, right), value in new_kern1.items():
@@ -255,31 +257,31 @@ def importKerningMMK(font, UFOfilepath):
 	font.kerning.update(new_kern2)
 	font.update()
 
-	reportfile = open(UFOfilepath.replace('.ufo','.log'),'w')
+	reportfile = open(UFOfilepath.replace('.ufo', '.log'), 'w')
 	reportfile.write(report)
 	reportfile.close()
 	print '\nConverting Kerning from MetricsMachine to Fontlab: DONE\n'
 
 
 class UpdateFromUFODialogDialog(object):
-	
 	def __init__(self, ufo, vfb, ufoPath):
 		self.ufo = ufo
 		self.vfb = vfb
 		self.ufoPath = ufoPath
 		self.updateNames = []
 		self.w = ModalDialog((200, 400), 'Update Font From UFO', okCallback=self.okCallback)
-		self.w.list = List((5, 70, -5, -100), ['Comparing VFB', 
-												"to its UFO.", 
-												"Click Compare to begin.",
-												'',
-												'Click Import MMK kerning',
-												'to import MetricsMachine\'s',
-												'kerning and groups.'
-												], callback=self.listHitCallback)
+		self.w.list = List((5, 70, -5, -100), ['Comparing VFB',
+		                                       "to its UFO.",
+		                                       "Click Compare to begin.",
+		                                       '',
+		                                       'Click Import MMK kerning',
+		                                       'to import MetricsMachine\'s',
+		                                       'kerning and groups.'
+		], callback=self.listHitCallback)
 		# self.w.list.show(False)
 		# self.w.MMK_import = CheckBox((10, 300, -12, 40), "Import MMK kerning", value=False)
-		self.w.importKerningMMKbutton = Button((10, 315, -10, 20), "Import MMK kerning", callback=self.importKerningMMKCallback)
+		self.w.importKerningMMKbutton = Button((10, 315, -10, 20), "Import MMK kerning",
+		                                       callback=self.importKerningMMKCallback)
 		self.w.updateButton = Button((10, 40, 85, 20), 'Update', callback=self.updateCallback)
 		self.w.updateAllButton = Button((105, 40, -10, 20), 'Update All', callback=self.updateAllCallback)
 		self.w.checkButton = Button((10, 10, -10, 20), 'Compare Glyphs', callback=self.checkCallback)
@@ -287,7 +289,7 @@ class UpdateFromUFODialogDialog(object):
 		# self.w.updateAllButton = Button((10, 40, 90, 20), 'Update All', callback=self.updateAllCallback)
 		# self.w.checkButton = Button((110, 10, -10, 20), 'Compare Glyphs', callback=self.checkCallback)
 		self.w.open()
-	
+
 	def okCallback(self, sender):
 		print 'this final list contains:', list(self.w.list)
 
@@ -295,8 +297,9 @@ class UpdateFromUFODialogDialog(object):
 		self.w.list.set([])
 		print 'Importing Kerning', asctime()
 		importKerningMMK(self.vfb, self.ufoPath)
-		# pass
-	
+
+	# pass
+
 	def listHitCallback(self, sender):
 		selection = sender.getSelection()
 		if not selection:
@@ -309,7 +312,7 @@ class UpdateFromUFODialogDialog(object):
 	def updateAllCallback(self, sender):
 		print "Update all glyphs"
 		names = self.updateNames[:]
-		progress = ProgressBar('Update all glyphs', ticks =  len(names))
+		progress = ProgressBar('Update all glyphs', ticks=len(names))
 		for n in self.updateNames:
 			self.updateGlyph(n)
 			names.remove(n)
@@ -317,16 +320,17 @@ class UpdateFromUFODialogDialog(object):
 			progress.tick()
 		self.w.list.setSelection([-1])
 		progress.close()
-		# if self.w.MMK_import.get():
-		# 	importKerningMMK(self.vfb, self.ufoPath)
 
-	
+	# if self.w.MMK_import.get():
+	# 	importKerningMMK(self.vfb, self.ufoPath)
+
+
 	def updateCallback(self, sender):
 		print "Update selected glyph"
 		names = []
 		for index in self.w.list.getSelection():
 			names.append(self.updateNames[index])
-		progress = ProgressBar('Update selected glyph', ticks =  len(names))
+		progress = ProgressBar('Update selected glyph', ticks=len(names))
 		for n in names:
 			self.updateGlyph(n)
 			self.updateNames.remove(n)
@@ -334,9 +338,10 @@ class UpdateFromUFODialogDialog(object):
 			progress.tick()
 		self.w.list.setSelection([-1])
 		progress.close()
-		# if self.w.MMK_import.get():
-		# 	importKerningMMK(self.vfb, self.ufoPath)
-	
+
+	# if self.w.MMK_import.get():
+	# 	importKerningMMK(self.vfb, self.ufoPath)
+
 	def checkCallback(self, sender):
 		print "checking fonts"
 		self.analyseFonts()
@@ -349,9 +354,8 @@ class UpdateFromUFODialogDialog(object):
 		self.w.list.set([])
 		self.updateNames = []
 
-		progress1 = ProgressBar('Calculating Glyphs Order', ticks =  len(ufoNames)) #(5, -100, -5, 10),
+		progress1 = ProgressBar('Calculating Glyphs Order', ticks=len(ufoNames)) #(5, -100, -5, 10),
 
-		
 		for n in ufoNames:
 			if n not in vfbNames:
 				# print 'p1:', n
@@ -360,13 +364,13 @@ class UpdateFromUFODialogDialog(object):
 				self.w.list.set(self.updateNames)
 				self.w.list.setSelection([-1])
 			progress1.tick()
-		progress1.close()	
+		progress1.close()
 
-		relevantNames = Set(ufoNames)&Set(vfbNames)
+		relevantNames = Set(ufoNames) & Set(vfbNames)
 		names = list(relevantNames)
 		names.sort()
 
-		progress2 = ProgressBar('Comparing Glyphs',ticks = len(names)) #(5, -120, -5, 10),
+		progress2 = ProgressBar('Comparing Glyphs', ticks=len(names)) #(5, -120, -5, 10),
 		for name in names:
 			# print 'p2:',name
 			ufoDigest = self.ufo[name]._getDigest()
@@ -377,7 +381,7 @@ class UpdateFromUFODialogDialog(object):
 				self.w.list.setSelection([-1])
 			progress2.tick()
 		progress2.close()
-	
+
 	def updateGlyph(self, name):
 		print "importing", name
 		self.vfb[name].clear()
@@ -390,8 +394,8 @@ class UpdateFromUFODialogDialog(object):
 
 
 if __name__ == "__main__":
-	
-	
+
+
 	f = CurrentFont()
 	ufoPath = f.path.replace(".vfb", ".ufo")
 	if os.path.exists(ufoPath):
@@ -399,7 +403,5 @@ if __name__ == "__main__":
 		ufo = _RFont(ufoPath)
 		UpdateFromUFODialogDialog(ufo, f, ufoPath)
 	f.update()
-
-
 
 	print "done"
