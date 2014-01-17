@@ -278,16 +278,13 @@ class UpdateFromUFODialogDialog(object):
 		                                       'to import MetricsMachine\'s',
 		                                       'kerning and groups.'
 		], callback=self.listHitCallback)
-		# self.w.list.show(False)
-		# self.w.MMK_import = CheckBox((10, 300, -12, 40), "Import MMK kerning", value=False)
+
 		self.w.importKerningMMKbutton = Button((10, 315, -10, 20), "Import MMK kerning",
 		                                       callback=self.importKerningMMKCallback)
 		self.w.updateButton = Button((10, 40, 85, 20), 'Update', callback=self.updateCallback)
 		self.w.updateAllButton = Button((105, 40, -10, 20), 'Update All', callback=self.updateAllCallback)
 		self.w.checkButton = Button((10, 10, -10, 20), 'Compare Glyphs', callback=self.checkCallback)
-		# self.w.updateButton = Button((10, 10, 90, 20), 'Update', callback=self.updateCallback)
-		# self.w.updateAllButton = Button((10, 40, 90, 20), 'Update All', callback=self.updateAllCallback)
-		# self.w.checkButton = Button((110, 10, -10, 20), 'Compare Glyphs', callback=self.checkCallback)
+
 		self.w.open()
 
 	def okCallback(self, sender):
