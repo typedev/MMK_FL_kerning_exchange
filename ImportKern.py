@@ -13,13 +13,13 @@ filekern = open(kernDumpPath, 'r')
 # kern_strukt = pickle.load(filekern)
 filekern.close()
 
-# kernClasses, kernClassesToBooleans, feaClasses = kern_strukt
-kernClasses, kernClassesToBooleans, feaClasses = pickle.load(filekern)
+# kernClasses, kern_L_R_table, feaClasses = kern_strukt
+kernClasses, kern_L_R_table, feaClasses = pickle.load(filekern)
 
 KEY_MMK_Colors = 'com.typesupply.MetricsMachine4.groupColors'
 
-groupColors = [ (1.0, 0.0, 0.0, 0.25),
-				(1.0, 0.5, 0.0, 0.25),
+GROUP_COLORS = [(1.0, 0.0, 0.0, 0.25),
+                (1.0, 0.5, 0.0, 0.25),
 				(1.0, 1.0, 0.0, 0.25),
 				(0.0, 1.0, 0.0, 0.25),
 				(0.0, 1.0, 1.0, 0.25),
@@ -47,7 +47,7 @@ for glyphClass in kernClasses:
 	MMK_Name_glyphClass, MMK_Content_glyphClass = MMK_glyphClass.split(':')[0] , MMK_glyphClass.split(':')[1]
 
 	MMK_Base_Glyph = MMK_Content_glyphClass.split(' ')[1]
-	leftClass, rightClass = kernClassesToBooleans[glyphClass]
+	leftClass, rightClass = kern_L_R_table[glyphClass]
 
 	if (leftClass == 1) and (rightClass == 1):
 		MMK_Name_glyphClass_L = '@MMK_L' + MMK_Name_glyphClass
@@ -79,8 +79,7 @@ for glyphClass in feaClasses:
 font.groups.clear()# []
 font.update()
 
-
-cycleCountColors = len(groupColors)
+cycleCountColors = len(GROUP_COLORS)
 dicColors = {}
 groups = font.groups
 for index, gl in enumerate(MMK_kernClasses):
@@ -89,7 +88,7 @@ for index, gl in enumerate(MMK_kernClasses):
 	content = checkContent(content)
 	groups[nameClass] = content
 
-	dicColors[nameClass] = groupColors[index % cycleCountColors]
+	dicColors[nameClass] = GROUP_COLORS[index % cycleCountColors]
 font.lib[KEY_MMK_Colors] = dicColors
 font.update()
 
