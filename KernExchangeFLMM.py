@@ -4,6 +4,7 @@
 	Exchange classes and kerning between Fontlab and MetricsMachine
 
 	typedev
+	Alexander Lubovenko
 
 	www.github.com/typedev
 
@@ -119,7 +120,7 @@ def generateClassName (kernClasses, classname):
 
 
 def importKerningMMK (font, UFOfilepath):
-	report = 'Import MMKerning Report ' + asctime() + '\nUFO file: ' + UFOfilepath
+	report = 'Import Kerning Report ' + asctime() + '\nUFO file: ' + UFOfilepath
 	kernClasses = {}
 	kern_L_R_table = {}
 	kernTable = {}
