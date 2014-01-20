@@ -335,7 +335,7 @@ def exportKerningFL (font, UFOfilepath):
 
 	font.update()
 	UFO.writeGroups(groups)
-	# TODO maybe we need to compare UFO and VFB font.LIB before overwriting it, and merge if they are not equal
+	# TODO maybe need to compare UFO and VFB font.LIB before overwriting it, and merge if they are not equal
 	UFO.writeLib(font.lib)
 
 	kerntabl = font.kerning
@@ -358,7 +358,6 @@ def exportKerningFL (font, UFOfilepath):
 	UFO.writeKerning(new_kern2)
 
 	print 'Converting Classes and Kerning from Fontlab to MetricsMachine: DONE'
-
 
 # END EXPORT section =====================================
 
