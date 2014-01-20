@@ -10,8 +10,8 @@
 """
 
 from time import asctime
-from robofab.world import AllFonts, OpenFont, CurrentFont
-from robofab.ufoLib import makeUFOPath, UFOWriter, UFOReader
+from robofab.world import CurrentFont
+from robofab.ufoLib import UFOWriter, UFOReader
 from robofab.interface.all.dialogs import ProgressBar
 from dialogKit import *
 
@@ -335,7 +335,7 @@ def exportKerningFL (font, UFOfilepath):
 
 	font.update()
 	UFO.writeGroups(groups)
-	# TODO maybe need to compare UFO and VFB font.LIB before overwriting it, and merge if they are not equal
+	# TODO maybe need to compare UFO and VFB before overwriting font.LIB , and merge LIB if they are not equal
 	UFO.writeLib(font.lib)
 
 	kerntabl = font.kerning
