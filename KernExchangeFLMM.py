@@ -9,7 +9,7 @@
 	www.github.com/typedev
 
 """
-
+import os
 from time import asctime
 from robofab.world import CurrentFont
 from robofab.ufoLib import UFOWriter, UFOReader
