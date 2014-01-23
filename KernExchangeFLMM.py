@@ -13,10 +13,10 @@ import os
 from time import asctime
 from robofab.world import CurrentFont
 from robofab.ufoLib import UFOWriter, UFOReader
-from robofab.interface.all.dialogs import ProgressBar
+# from robofab.interface.all.dialogs import ProgressBar
 from dialogKit import *
 
-VERSION = '0.2'
+VERSION = '0.2.1'
 
 WARNING_TEXT = """The .vfb and UFO must be in the same folder, and the names match fontname.vfb=fontname.ufo
 
@@ -53,12 +53,12 @@ def diffGroups (oldTable, newTable, kern_L_R_table):
 	delGroups = {}
 	chgGroups = {}
 
-	progress = ProgressBar('Making report: Classes', ticks = len(newTable.items()) + len(oldTable.items()))
+	# progress = ProgressBar('Making report: Classes', ticks = len(newTable.items()) + len(oldTable.items()))
 
 	report = '\n\n* * * * * Groups report:'
 
 	for n_group, content in newTable.items():
-		progress.tick()
+		# progress.tick()
 		if not oldTable.has_key(n_group):
 			newGroups[n_group] = content
 			report = report + '\n\nNew Group Added: %s%s [%s]' % (
@@ -70,13 +70,13 @@ def diffGroups (oldTable, newTable, kern_L_R_table):
 				report = report + '\n\told: [%s]' % (' '.join(oldTable[n_group]))
 				report = report + '\n\tnew: [%s]' % (' '.join(newTable[n_group]))
 	for o_group, content in oldTable.items():
-		progress.tick()
+		# progress.tick()
 		if not newTable.has_key(o_group):
 			delGroups[o_group] = content
 			report = report + '\n\nGroup Deleted: %s [%s]' % (o_group, ' '.join(content))
 	report = report + '\n\nGroups TOTAL: Added=%i Deleted=%i Changed=%i' % (
 	len(newGroups), len(delGroups), len(chgGroups))
-	progress.close()
+	# progress.close()
 	return report#, newGroups, delGroups, chgGroups
 
 
@@ -86,10 +86,10 @@ def diffKerning (oldTable, newTable):
 	chgPairs = {}
 	nulPairs = {}
 	report = '\n\n* * * * * Kerning report:\n'
-	progress = ProgressBar('Making report: Kerning', ticks = len(newTable.items()) + len(oldTable.items()))
+	# progress = ProgressBar('Making report: Kerning', ticks = len(newTable.items()) + len(oldTable.items()))
 
 	for (l, r), v in newTable.items():
-		progress.tick()
+		# # progress.tick()
 		if v == 0:
 			nulPairs[(l, r)] = v
 		else:
@@ -102,13 +102,13 @@ def diffKerning (oldTable, newTable):
 					report = report + '\nChanged Pair: %s %s' % (l, r)
 					report = report + '\n\told: %i\tnew: %i' % (oldTable[(l, r)], newTable[(l, r)])
 	for (l, r), v in oldTable.items():
-		progress.tick()
+		# progress.tick()
 		if not newTable.has_key((l, r)):
 			delPairs[(l, r)] = v
 			report = report + '\nPair Deleted: %s %s %i' % (l, r, v)
 	report = report + '\n\nPairs TOTAL: Added=%i Deleted=%i Changed=%i Null pairs (ignored)=%i' % (
 	len(newPairs), len(delPairs), len(chgPairs), len(nulPairs))
-	progress.close()
+	# progress.close()
 	return report#,newPairs, delPairs, chgPairs, nulPairs
 
 
@@ -131,10 +131,10 @@ def importKerningMMK (font, UFOfilepath):
 	kernGroups = UFO.readGroups()
 	kernTable = UFO.readKerning()
 
-	progress = ProgressBar('Converting group names', ticks = len(kernGroups.items()))
+	# progress = ProgressBar('Converting group names', ticks = len(kernGroups.items()))
 
 	for groupname, content in kernGroups.items():
-		progress.tick()
+		# progress.tick()
 		if len(content) != 0:
 			if content[0] == '':
 				content.pop(0)
@@ -151,15 +151,21 @@ def importKerningMMK (font, UFOfilepath):
 						kern_L_R_table[classname] = (True, True)
 					else:
 						classname = generateClassName(kernClasses, classname)
+						if groupname[5] == 'L': #  @MMK_L_namegroup
+							kern_L_R_table[classname] = (True, False)
+						elif groupname[5] == 'R': #  @MMK_R_namegroup
+							kern_L_R_table[classname] = (False, True)
+						else:
+							print "WARNING! Something wrong whith LEFT/RIGHT identification...", groupname
+				else:
+					if groupname[5] == 'L': #  @MMK_L_namegroup
+						kern_L_R_table[classname] = (True, False)
+					elif groupname[5] == 'R': #  @MMK_R_namegroup
+						kern_L_R_table[classname] = (False, True)
+					else:
+						print "WARNING! Something wrong whith LEFT/RIGHT identification...", groupname
 
 				kernClasses[classname] = classcontent
-
-				if groupname[5] == 'L': #  @MMK_L_namegroup
-					kern_L_R_table[classname] = (True, False)
-				elif groupname[5] == 'R': #  @MMK_R_namegroup
-					kern_L_R_table[classname] = (False, True)
-				else:
-					print "WARNING! Something wrong whith LEFT/RIGHT identification...", groupname
 
 
 			else: # fea class
@@ -167,20 +173,19 @@ def importKerningMMK (font, UFOfilepath):
 		else:
 			print 'WARNING! Group with NULL content: %s Ignored.' % groupname
 			report = report + '\n\nGroup with NULL content: %s Ignored.' % groupname
-	progress.close()
+	# progress.close()
 
-	progress = ProgressBar('Merging kerning and fea-classes',
-	                       ticks = len(kernClasses.items()) + len(feaClasses.items()))
+	# progress = ProgressBar('Merging kerning and fea-classes',ticks = len(kernClasses.items()) + len(feaClasses.items()))
 
 	classes = {}
 	for classname, content in kernClasses.items():
-		progress.tick()
+		# progress.tick()
 		classes[classname] = content#.split(' ')
 
 	for classname, content in feaClasses.items():
-		progress.tick()
+		# progress.tick()
 		classes[classname] = content#.split(' ')
-	progress.close()
+	# progress.close()
 
 	report = report + diffGroups(font.groups, classes, kern_L_R_table)
 
@@ -188,23 +193,23 @@ def importKerningMMK (font, UFOfilepath):
 	font.groups = classes
 	font.update()
 
-	progress = ProgressBar('Left/Right identification', ticks = len(font.naked().classes))
+	# progress = ProgressBar('Left/Right identification', ticks = len(font.naked().classes))
 
 	for index, kernClass in enumerate(font.naked().classes):
-		progress.tick()
+		# progress.tick()
 		if kernClass.startswith('_'):
 			nameClass = kernClass.split(':')[0]
 			leftBool, rightBool = kern_L_R_table[nameClass]
 			font.naked().SetClassFlags(index, leftBool, rightBool)
 	font.update()
 	print '\nConverting Groups from MetricsMachine to Fontlab Classes: DONE\n'
-	progress.close()
+	# progress.close()
 
-	progress = ProgressBar('Left pairs converting', ticks = len(kernTable.items()))
+	# progress = ProgressBar('Left pairs converting', ticks = len(kernTable.items()))
 
 	new_kern1 = {}
 	for (left, right), value in kernTable.items():
-		progress.tick()
+		# progress.tick()
 		if dicGroups.has_key(left):
 			baseGlyph = dicGroups[left]
 			new_kern1[(baseGlyph, right)] = value
@@ -213,13 +218,13 @@ def importKerningMMK (font, UFOfilepath):
 				print "WARNING! Something wrong with pair:", left, right, value, 'Ignored.'
 			else:
 				new_kern1[(left, right)] = value
-	progress.close()
+	# progress.close()
 
-	progress = ProgressBar('Right pairs converting', ticks = len(new_kern1.items()))
+	# progress = ProgressBar('Right pairs converting', ticks = len(new_kern1.items()))
 
 	new_kern2 = {}
 	for (left, right), value in new_kern1.items():
-		progress.tick()
+		# progress.tick()
 		if dicGroups.has_key(right):
 			baseGlyph = dicGroups[right]
 			new_kern2[(left, baseGlyph)] = value
@@ -228,7 +233,7 @@ def importKerningMMK (font, UFOfilepath):
 				print "WARNING! Something wrong with pair:", left, right, value, 'Ignored.'
 			else:
 				new_kern2[(left, right)] = value
-	progress.close()
+	# progress.close()
 
 	report = report + diffKerning(font.kerning, new_kern2)
 
