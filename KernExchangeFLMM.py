@@ -16,7 +16,7 @@ from robofab.ufoLib import UFOWriter, UFOReader
 # from robofab.interface.all.dialogs import ProgressBar
 from dialogKit import *
 
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 
 WARNING_TEXT = """The .vfb and UFO must be in the same folder, and the names match fontname.vfb=fontname.ufo
 
@@ -264,6 +264,26 @@ GROUP_COLORS = [(1.0, 0.0, 0.0, 0.25),
                 (1.0, 0.0, 0.5, 0.25)]
 
 
+def fixGlyphOrder (font, groupname, baseglyph):
+	newcontent = []
+	newcontent.append(baseglyph)
+	for glyphname in font.groups[groupname]:
+		if glyphname != baseglyph:
+			newcontent.append(glyphname)
+	font.groups[groupname] = newcontent
+
+
+def checkGlyphOrder (font):
+	for group in font.groups.items():
+		content = []
+		groupname, content = group
+		for idx, glyphname in enumerate(content):
+			if ('\'' in glyphname) and (idx != 0):
+				print 'Group %s has wrong order... fixed.' % groupname
+				fixGlyphOrder(font, groupname, glyphname)
+				break
+
+
 def checkContent (content):
 	result = []
 	for name in content:
@@ -391,6 +411,7 @@ class KERNExchanger(object):
 
 	def run_importMMK (self, sender):
 		font = CurrentFont()
+		# print 'Import Kerning from:' + font.info.name
 		if font != None:
 			ufopath = getUFOpath(font)
 			if ufopath != None:
@@ -402,6 +423,7 @@ class KERNExchanger(object):
 	def run_exportFLK (self, sender):
 		font = CurrentFont()
 		if font != None:
+			checkGlyphOrder(font)
 			ufopath = getUFOpath(font)
 			if ufopath != None:
 				exportKerningFL(font, ufopath)
